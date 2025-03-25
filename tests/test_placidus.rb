@@ -92,4 +92,68 @@ class TestPlacidus < Minitest::Test
       placidus(100, 20, 100)
     end
   end
+
+  def test_placidus_wider_range
+    # Test with a wider range of Ascendant, Declination, and Latitude
+    [
+      [50.0, 15.0, 25.0],
+      [150.0, -10.0, 35.0],
+      [250.0, 20.0, -40.0],
+      [350.0, -25.0, -50.0],
+      [10.0, 5.0, 10.0],
+      [180.0, 0.0, 0.0], # Test with zero values
+      [90.0, -5.0, 20.0],
+      [270.0, 10.0, -30.0]
+    ].each do |as, dec, lat|
+      cusps = placidus(as, dec, lat)
+      assert_instance_of Array, cusps
+      assert_equal 12, cusps.size
+      assert_equal false, cusps.include?(-1), "Placidus calculation did not converge for as=#{as}, dec=#{dec}, lat=#{lat}."
+    end
+  end
+
+  def test_placidus_ascendant_near_limits
+    # Test Ascendant values close to 0 and 360 degrees
+    [
+      [1.0, 20.0, 30.0],
+      [359.0, 10.0, 15.0],
+      [0.0, 5.0, 25.0],
+      [360.0, -10.0, -20.0]
+    ].each do |as, dec, lat|
+      cusps = placidus(as, dec, lat)
+      assert_instance_of Array, cusps
+      assert_equal 12, cusps.size
+      assert_equal false, cusps.include?(-1), "Placidus calculation did not converge for as=#{as}, dec=#{dec}, lat=#{lat}."
+    end
+  end
+
+  def test_placidus_declination_near_limits
+    # Test Declination values close to -90 and +90 degrees
+    [
+      [120.0, 88.0, 40.0],
+      [240.0, -88.0, -30.0],
+      [180.0, 90.0, 20.0],
+      [300.0, -90.0, -10.0]
+    ].each do |as, dec, lat|
+      cusps = placidus(as, dec, lat)
+      assert_instance_of Array, cusps
+      assert_equal 12, cusps.size
+      assert_equal false, cusps.include?(-1), "Placidus calculation did not converge for as=#{as}, dec=#{dec}, lat=#{lat}."
+    end
+  end
+
+  def test_placidus_latitude_near_limits
+    # Test Latitude values close to -90 and +90 degrees
+    [
+      [60.0, 23.5, 88.0],
+      [150.0, -15.0, -88.0],
+      [270.0, 10.0, 90.0],
+      [330.0, -20.0, -90.0]
+    ].each do |as, dec, lat|
+      cusps = placidus(as, dec, lat)
+      assert_instance_of Array, cusps
+      assert_equal 12, cusps.size
+      assert_equal false, cusps.include?(-1), "Placidus calculation did not converge for as=#{as}, dec=#{dec}, lat=#{lat}."
+    end
+  end
 end
